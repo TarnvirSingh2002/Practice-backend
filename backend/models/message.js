@@ -6,4 +6,4 @@ const mess=new mongoose.Schema({
     message:String,},{
     timestamps:true
 });
-export const message = mongoose.model("message",mess);
+export const Message = mongoose.model("Message",mess);

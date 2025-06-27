@@ -13,5 +13,8 @@ const regist = new mongoose.Schema({
 
 regist.methods.tokenGenereator=function(){
     return jwt.sign({id:this._id},"Trahudgeu",{expiresIn:'1h'});
-}
-export const register = mongoose.model('register',regist);
+}//as we provide (id) variable to store id so we will only get from here
+
+
+export const Register = mongoose.model('Register',regist); //give the capital name 
+// to differentiate between the local variable and schema model

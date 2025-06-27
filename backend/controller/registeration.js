@@ -1,4 +1,4 @@
-import { register } from "../models/register.js";
+import { Register } from "../models/register.js";
 import bcrypt from 'bcrypt';
 export const regist=async(req,res)=>{
     try{
@@ -6,10 +6,19 @@ export const regist=async(req,res)=>{
         if(!name||!email||!password){
             return res.status(400).send({message:"Enter your full details"});
         }
+        const existingPerson=await Register.findOne({email});
+        if(existingPerson){
+            return res.status(400).send({message:"already existed person"});
+        }
         const salt=await bcrypt.genSalt(6);
         const passkey=await bcrypt.hash(password,salt);
-        await register.create({name,email,password:passkey});
-        res.status(200).send({message:"Created"});
+        const re=new Register({
+            name,
+            email,
+            password:passkey
+        });
+        await re.save();
+        res.status(201).send({ message: "User registered successfully" });
     }
     catch(err){
         res.status(500).send({message:"internal Server error"});
@@ -23,7 +32,7 @@ export const login=async(req,res)=>{
         if(!email||!password){
             return res.status(400).send({message:"Enter your full details"});
         };
-        const data=await register.findOne({email});
+        const data=await Register.findOne({email});
         if(!data){
             return res.status(401).send({message:"Unauthorized person"});
         };
