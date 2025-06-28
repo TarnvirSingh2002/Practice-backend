@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 const mess=new mongoose.Schema({
     user:{type:mongoose.Schema.Types.ObjectId,
-        ref:"register"
+        ref:"Register"// Must match the model name exactly, case-sensitive
     },
     message:String,},{
     timestamps:true
