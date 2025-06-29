@@ -16,7 +16,6 @@ regist.pre('save',async function(next){// before getting save() into the db
         return next();//return and go outside when password is not modified
     }
         const salt=await bcrypt.genSalt(6);
-        console.log(this.password);
         this.password=await bcrypt.hash(this.password,salt);
         next();
 });

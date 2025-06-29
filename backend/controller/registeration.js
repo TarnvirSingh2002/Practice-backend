@@ -42,7 +42,10 @@ export const login=async(req,res)=>{
         }
 
         const tok=data.tokenGenereator();
-        res.status(200).send({tok});
+        res.cookie('token', tok,{ httpOnly: true}); //
+        //[httpOnly : true] cannot be accessed via JavaScript on the browser(document.cookie)
+        //[secure : true] Only be sent over HTTPS connections (not be sent over plain HTTP)
+        res.status(200).send({message:"login successfully"});
     }
     catch(err){
         res.status(500).send({message:"internal Server error"});
