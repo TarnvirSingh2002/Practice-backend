@@ -5,7 +5,8 @@ import bcrypt from "bcrypt";
 const regist = new mongoose.Schema({
     name: String,
     email:String,
-    password:String},{
+    password:String,
+    refreshToken:String},{
     timestamps:true
 });
 
@@ -29,10 +30,13 @@ regist.methods.varifyPassword=async function(password){//used to compare the pas
 //     return jwt.sign({id:this._id},"tarnvir",{expiresIn:'1h'});
 // }
 
-regist.methods.tokenGenereator=function(){
+regist.methods.tokenAccessGenereator=function(){
     return jwt.sign({id:this._id},"Trahudgeu",{expiresIn:'1h'});
 }//as we provide (id) variable to store id so we will only get from here
 
+regist.methods.tokenRefreshGenereator=function(){
+    return jwt.sign({id:this._id},"ikjhgb",{expiresIn:'7d'});
+}
 
 export const Register = mongoose.model('Register',regist); //give the capital name 
 // to differentiate between the local variable and schema model
