@@ -33,7 +33,15 @@ export const getallmesssages = async (req, res) => {
                     from: "registers", 
                     localField: "user",
                     foreignField: "_id",
-                    as: "allUser"
+                    as: "allUser",
+                    pipeline:[
+                        {
+                            $project:{//it return all the data from the parent and given fields from the lookup 
+                                name:1,
+                                email:1
+                            }
+                        }
+                    ]
                 }
             },
             {
@@ -45,7 +53,17 @@ export const getallmesssages = async (req, res) => {
             },
             { 
                 $limit: 1 // set the limit how many we want to access
-            }
+            },
+            // {
+            //     $unwind: "$allUser"  // Flattens the allUser array
+            // },
+            // {
+            //     $project:{
+            //         "allUser.name": 1,//we have to used this to filter the data from the lookup field
+            //         "allUser.email": 1,
+            //     }
+            // }
+
         ]);
 
         res.status(200).send({ messsagesall });
@@ -64,3 +82,13 @@ export const getallmesssages = async (req, res) => {
 //     .sort({ createdAt: -1 });  
 //     res.send({all});
 // }
+
+export const updateMessage =async (req,res)=>{
+    const {id, message} =req.body;
+    const person = await Message.findByIdAndUpdate(id,//we get id
+        {$set:{message}},//here what we want to set or change
+        //{$unset:{password:""}} we can upadte the document by removing the data from a field
+        {new:true})//this is used so that we will get new updated data in our const variable
+    .select('-user');
+    res.status(200).json({person});
+}

@@ -53,7 +53,7 @@ export const login= async(req,res)=>{
     try{
         const {email, password} = req.body;
 
-        if(![email, password].every(ele => typeof ele === 'string' && ele.trim() !== "")){
+        if(!email||!password){
             // return res.status(400).send({message:"Enter your full details"});
             throw new Error(400,"enter all details");
         };
@@ -86,8 +86,8 @@ export const refreshTokenUpdate=async(req,res)=>{
         const refToken = req.cookies?.refreshToken;
 
         if(!refToken){
-                return res.status(401).send({error:"Please authenticate using a valid token"});
-            }
+            return res.status(401).send({error:"Please authenticate using a valid token"});
+        }
                 
         const data= jwt.verify(refToken,'ikjhgb');    
          
@@ -101,7 +101,6 @@ export const refreshTokenUpdate=async(req,res)=>{
             return res.status(401).send({error:"refresh token is expired"});
         }
 
-        console.log(person._id);
         const { accessToken, refreshToken }=await generateRefreshToken(person._id);
         res.cookie('accessToken', accessToken,{ httpOnly: true})
         .cookie('refreshToken',refreshToken,{httpOnly:true});

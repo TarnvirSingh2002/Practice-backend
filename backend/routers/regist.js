@@ -1,5 +1,5 @@
 import express from "express";
-import { login, regist,refreshTokenUpdate } from "../controller/registeration.js";
+import { login, regist,refreshTokenUpdate } from "../controller/registeration.controller.js";
 const routes=express.Router();
 
 routes.post('/register',regist);
