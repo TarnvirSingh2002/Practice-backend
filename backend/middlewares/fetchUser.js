@@ -1,7 +1,6 @@
 import jwt from 'jsonwebtoken';
 export const fetchUser=(req,res,next)=>{ 
     const token=req.cookies?.accessToken;
-    console.log(token);
     if(!token){
         return res.status(401).send({error:"Please authenticate using a valid token"});
     }
@@ -14,5 +13,4 @@ export const fetchUser=(req,res,next)=>{
         console.log(error);
         return res.status(401).send({error:"Please authenticate using a valid token"});
     }
-
 }
