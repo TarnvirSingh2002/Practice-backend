@@ -1,10 +1,15 @@
 import jwt from "jsonwebtoken";
 import { Register } from "../models/register.js";
-export const regist=async(req,res)=>{
+import { ApiError } from "../errorMiddleware/ApiError.js";
+
+export const regist=async(req,res,next)=>{
     try{
         const {name, email, password} = req.body;
         if(!name||!email||!password){
-            return res.status(400).send({message:"Enter your full details"});
+            throw new ApiError("Enter your full details", 400);
+        }
+        if(!email.includes('@')){
+            throw new ApiError("Invalid email format", 400);
         }
 
         const existingPerson=await Register.findOne({$or:[{name},{email}]});
@@ -12,7 +17,7 @@ export const regist=async(req,res)=>{
         // findOne({name,email}) behaves like an AND condition 
 
         if(existingPerson){
-            return res.status(400).send({message:"already existed person"});
+            throw new ApiError("This person is already existed",400);
         }
         const re=new Register({
             name,
@@ -24,11 +29,10 @@ export const regist=async(req,res)=>{
         res.status(201).send({ message: "User registered successfully" });
     }
     catch(err){
-        res.status(500).send({message:"internal Server error"});
+        next(err);
+        // res.status(500).json({message:"internal"});
     }
-}
-
-
+};
 
 const generateRefreshToken=async(userId)=>{
 
@@ -49,23 +53,22 @@ const generateRefreshToken=async(userId)=>{
 }
 
 //working on error middleware
-export const login= async(req,res)=>{
+export const login= async(req,res,next)=>{
     try{
         const {email, password} = req.body;
 
         if(!email||!password){
-            // return res.status(400).send({message:"Enter your full details"});
-            throw new Error(400,"enter all details");
+            throw new ApiError("enter all details",400);
         };
 
         const data=await Register.findOne({email});
         if(!data){
-            return res.status(401).send({message:"Unauthorized person"});
+            throw new ApiError("Unauthorized person",401);
         };
 
         const matched = await data.varifyPassword(password);
         if(!matched){
-            return res.status(401).send({message:"password is incorrect"});
+            throw new ApiError("password is incorrect",401);
         }
 
         const {accessToken, refreshToken}=await generateRefreshToken(data._id);
@@ -76,7 +79,8 @@ export const login= async(req,res)=>{
         res.status(200).send({refreshToken, message:"login successfully"});
     }
     catch(err){
-        res.status(500).send({message:"internal Server error"});
+        console.log(err.status);
+        next(err);
     }
 };
 
@@ -86,7 +90,8 @@ export const refreshTokenUpdate=async(req,res)=>{
         const refToken = req.cookies?.refreshToken;
 
         if(!refToken){
-            return res.status(401).send({error:"Please authenticate using a valid token"});
+            throw new ApiError("Please authenticate using a valid token menu",401);
+            // return res.status(401).send({error:"Please authenticate using a valid token"});
         }
                 
         const data= jwt.verify(refToken,'ikjhgb');    

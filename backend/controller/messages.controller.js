@@ -1,11 +1,12 @@
 import mongoose from "mongoose";
 import { Message } from "../models/message.js";
+import { ApiError } from "../errorMiddleware/ApiError.js";
 
-export const addMesage= async(req,res)=>{
+export const addMesage= async(req,res,next)=>{
     try {
         const {message}=req.body;
         if(!message){
-            res.send(400).json('message require');
+            throw new ApiError("enter something",400);
         }
         const mes = new Message({
             user:req?.user,
@@ -14,12 +15,12 @@ export const addMesage= async(req,res)=>{
         await mes.save();
         res.status(200).send("successfully added");
     } catch (error) {
-        res.status(500).send("Internal Server error 2");      
+        next(error);     
     }
 }
 
 
-export const getallmesssages = async (req, res) => {
+export const getallmesssages = async (req, res, next) => {
     try {
         const messsagesall = await Message.aggregate([
             {
@@ -68,10 +69,9 @@ export const getallmesssages = async (req, res) => {
 
         res.status(200).send({ messsagesall });
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error 2");
+        next(error);
     }
-}
+};
 
 // export const getallmesssages = async (req, res) => {
 //     const all= await Message.find({
@@ -83,12 +83,17 @@ export const getallmesssages = async (req, res) => {
 //     res.send({all});
 // }
 
-export const updateMessage =async (req,res)=>{
+export const updateMessage =async (req,res,next)=>{
     const {id, message} =req.body;
-    const person = await Message.findByIdAndUpdate(id,//we get id
+    try{
+        const person = await Message.findByIdAndUpdate(id,//we get id
         {$set:{message}},//here what we want to set or change
-        //{$unset:{password:""}} we can upadte the document by removing the data from a field
+        //{$unset:{password:""}} //we can upadte the document by removing the data from a field
         {new:true})//this is used so that we will get new updated data in our const variable
-    .select('-user');
-    res.status(200).json({person});
+        .select('-user');
+        res.status(200).json({person});
+    }
+    catch(err){
+        next(err);
+    }
 }
