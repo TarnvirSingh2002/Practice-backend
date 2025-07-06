@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Register } from "../models/register.js";
 import { ApiError } from "../errorMiddleware/ApiError.js";
+import { asyncHandler } from "../errorMiddleware/asyncHandler.js";
 
 export const regist=async(req,res,next)=>{
     try{
@@ -52,9 +53,8 @@ const generateRefreshToken=async(userId)=>{
     }
 }
 
-//working on error middleware
-export const login= async(req,res,next)=>{
-    try{
+
+export const login= asyncHandler( async(req,res)=>{
         const {email, password} = req.body;
 
         if(!email||!password){
@@ -77,12 +77,7 @@ export const login= async(req,res,next)=>{
         //[httpOnly : true] cannot be accessed via JavaScript on the browser(document.cookie)
         //[secure : true] Only be sent over HTTPS connections (not be sent over plain HTTP)
         res.status(200).send({refreshToken, message:"login successfully"});
-    }
-    catch(err){
-        console.log(err.status);
-        next(err);
-    }
-};
+});
 
 
 export const refreshTokenUpdate=async(req,res)=>{
@@ -91,7 +86,6 @@ export const refreshTokenUpdate=async(req,res)=>{
 
         if(!refToken){
             throw new ApiError("Please authenticate using a valid token menu",401);
-            // return res.status(401).send({error:"Please authenticate using a valid token"});
         }
                 
         const data= jwt.verify(refToken,'ikjhgb');    

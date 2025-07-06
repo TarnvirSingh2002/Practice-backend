@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
-const mess=new mongoose.Schema({
-    user:{type:mongoose.Schema.Types.ObjectId,
-        ref:"Register"// Must match the model name exactly, case-sensitive
+const mess = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Register"// Must match with the model name exactly, case-sensitive
     },
-    message:String,},{
-    timestamps:true
+    message: String,
+}, {
+    timestamps: true
 });
-export const Message = mongoose.model("Message",mess);
+export const Message = mongoose.model("Message", mess);

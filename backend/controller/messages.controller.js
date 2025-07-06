@@ -1,23 +1,20 @@
 import mongoose from "mongoose";
 import { Message } from "../models/message.js";
 import { ApiError } from "../errorMiddleware/ApiError.js";
+import { asyncHandler } from "../errorMiddleware/asyncHandler.js";
 
-export const addMesage= async(req,res,next)=>{
-    try {
-        const {message}=req.body;
-        if(!message){
-            throw new ApiError("enter something",400);
+export const addMesage = asyncHandler(async (req, res, next) => {
+        const { message } = req.body;
+        if (!message) {
+            throw new ApiError("enter something", 400);
         }
         const mes = new Message({
-            user:req?.user,
+            user: req?.user,
             message
         });
         await mes.save();
         res.status(200).send("successfully added");
-    } catch (error) {
-        next(error);     
-    }
-}
+});
 
 
 export const getallmesssages = async (req, res, next) => {
@@ -25,21 +22,21 @@ export const getallmesssages = async (req, res, next) => {
         const messsagesall = await Message.aggregate([
             {
                 $match: { //it is used as a (where) clouse
-                    user: new mongoose.Types.ObjectId(req.user) 
-// it does not automatically convert string into the objectId so we have to convert it
+                    user: new mongoose.Types.ObjectId(req.user)
+                    // it does not automatically convert string into the objectId so we have to convert it
                 }
             },
             {
                 $lookup: { //lookup is just to connect two documents
-                    from: "registers", 
+                    from: "registers",
                     localField: "user",
                     foreignField: "_id",
                     as: "allUser",
-                    pipeline:[
+                    pipeline: [
                         {
-                            $project:{//it return all the data from the parent and given fields from the lookup 
-                                name:1,
-                                email:1
+                            $project: {//it return all the data from the parent and given fields from the lookup 
+                                name: 1,
+                                email: 1
                             }
                         }
                     ]
@@ -50,9 +47,9 @@ export const getallmesssages = async (req, res, next) => {
                 // 1 for ascending, -1 for descending
             },
             {
-                $skip:1 // how many we have to skip
+                $skip: 1 // how many we have to skip
             },
-            { 
+            {
                 $limit: 1 // set the limit how many we want to access
             },
             // {
@@ -83,17 +80,17 @@ export const getallmesssages = async (req, res, next) => {
 //     res.send({all});
 // }
 
-export const updateMessage =async (req,res,next)=>{
-    const {id, message} =req.body;
-    try{
+export const updateMessage = asyncHandler(async (req, res, next) => {
+    const { id, message } = req.body;
+    // try {
         const person = await Message.findByIdAndUpdate(id,//we get id
-        {$set:{message}},//here what we want to set or change
-        //{$unset:{password:""}} //we can upadte the document by removing the data from a field
-        {new:true})//this is used so that we will get new updated data in our const variable
-        .select('-user');
-        res.status(200).json({person});
-    }
-    catch(err){
-        next(err);
-    }
-}
+            { $set: { message } },//here what we want to set or change
+            //{$unset:{password:""}} //we can upadte the document by removing the data from a field
+            { new: true })//this is used so that we will get new updated data in our const variable
+            .select('-user');
+        res.status(200).json({ person });
+    // }
+    // catch (err) {
+    //     next(err);
+    // }
+});
